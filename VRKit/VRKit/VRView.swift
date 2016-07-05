@@ -14,20 +14,24 @@ class VRView: UIView {
     private let screenWidth = UIScreen.mainScreen().bounds.size.width
     private let screenHeight = UIScreen.mainScreen().bounds.size.height
     
-    private var isContinuous:Bool = false
-    
-    private var leftView:UIView
-    private var rightView:UIView
-    
     private var motionManager = CMMotionManager()
+    private var netX:CGFloat = 0.0
+    private var netY:CGFloat = 0.0
     
-    private var leftSubViews:[UIView]
-    private var rightSubViews:[UIView]
+    private var isContinuous = false
+    private var hasSetMargins = false
+    private var hasContinuousViewForView:[Bool:UIView] = [:]
     
     private var leftMargin:CGFloat = 0.0
     private var rightMargin:CGFloat = 0.0
     private var topMargin:CGFloat = 0.0
     private var bottomMargin:CGFloat = 0.0
+    
+    private var leftView:UIView
+    private var rightView:UIView
+    
+    private var leftSubViews:[UIView]
+    private var rightSubViews:[UIView]
     
     init() {
         leftView = UIView(frame:CGRect(x:0, y:0, width:screenWidth/2, height:screenHeight))
@@ -47,9 +51,15 @@ class VRView: UIView {
             
             motionManager.gyroUpdateInterval = interval
             motionManager.startGyroUpdatesToQueue(NSOperationQueue.currentQueue()!, withHandler: { (gyroData:CMGyroData?, error:NSError?) in
+                let x:CGFloat = CGFloat((gyroData?.rotationRate.x)!)
+                let y:CGFloat = CGFloat((gyroData?.rotationRate.y)!)
                 for vrSubView in self.getAllSubViews() {
-                    vrSubView.frame = CGRectOffset(vrSubView.frame, CGFloat((gyroData?.rotationRate.x)!), CGFloat(-(gyroData?.rotationRate.y)!))
+                    vrSubView.frame = CGRectOffset(vrSubView.frame, x, -y)
                 }
+                self.netX+=x
+                self.netY+=y
+                print("Net X: \(self.netX), Net Y: \(self.netY)")
+                self.checkContinuousViews()
             })
         }
     }
@@ -83,12 +93,36 @@ class VRView: UIView {
                     bottomMargin = subView.frame.origin.y+subView.frame.size.height
                 }
             }
+            hasSetMargins = true
         } else {
             leftMargin = 0.0
             rightMargin = 0.0
             topMargin = 0.0
             bottomMargin = 0.0
+            hasSetMargins = false
         }
+    }
+    
+    private func checkContinuousViews() {
+        if isContinuous && hasSetMargins {
+            let margin:CGFloat = 20.0
+            if netX+margin < leftMargin {
+                
+            }
+            if netX-margin > rightMargin {
+                
+            }
+            /*if netY+margin < topMargin {
+                
+            }
+            if netY-margin > bottomMargin {
+                
+            }*/
+        }
+    }
+    
+    private func addContinuousView() {
+        
     }
     
     func addVRSubView(view:UIView) {
