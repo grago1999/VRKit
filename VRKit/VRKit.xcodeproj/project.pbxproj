@@ -14,6 +14,7 @@
 		99158AB51D1520230090DA88 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99158AB31D1520230090DA88 /* LaunchScreen.storyboard */; };
 		99158ABD1D1520650090DA88 /* VRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99158ABC1D1520650090DA88 /* VRView.swift */; };
 		994C5CBE1D2B5086007CB43C /* img.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 994C5CBD1D2B5086007CB43C /* img.jpg */; };
+		99F3A9051D2CBA3300ECDA78 /* img360.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 99F3A9041D2CBA3300ECDA78 /* img360.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		99158AB61D1520230090DA88 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99158ABC1D1520650090DA88 /* VRView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VRView.swift; sourceTree = "<group>"; };
 		994C5CBD1D2B5086007CB43C /* img.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = img.jpg; sourceTree = "<group>"; };
+		99F3A9041D2CBA3300ECDA78 /* img360.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = img360.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +64,7 @@
 				99158AAC1D1520230090DA88 /* ViewController.swift */,
 				99158ABC1D1520650090DA88 /* VRView.swift */,
 				994C5CBD1D2B5086007CB43C /* img.jpg */,
+				99F3A9041D2CBA3300ECDA78 /* img360.jpg */,
 				99158AAE1D1520230090DA88 /* Main.storyboard */,
 				99158AB11D1520230090DA88 /* Assets.xcassets */,
 				99158AB31D1520230090DA88 /* LaunchScreen.storyboard */,
@@ -129,6 +132,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99158AB51D1520230090DA88 /* LaunchScreen.storyboard in Resources */,
+				99F3A9051D2CBA3300ECDA78 /* img360.jpg in Resources */,
 				99158AB21D1520230090DA88 /* Assets.xcassets in Resources */,
 				99158AB01D1520230090DA88 /* Main.storyboard in Resources */,
 				994C5CBE1D2B5086007CB43C /* img.jpg in Resources */,

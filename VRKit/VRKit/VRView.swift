@@ -127,15 +127,15 @@ class VRView: UIView {
     private func checkContinuousViews() {
         if isContinuous && hasSetMargins {
             let margin:CGFloat = 20.0
-            /*if netX+margin < leftMargin {
+            if netX+margin < leftMargin {
                 
-            }*/
-            if netX+(screenWidth/2)-margin > rightMargin {
+            }
+            if netX+(screenWidth/2)+margin > rightMargin {
                 let hasView = hasContinuousViewForView[leftContainerView]
                 if !hasView! {
+                    leftContainerView.layer.masksToBounds = false
                     let newContainer:UIView = leftContainerView.copyView() as! UIView
                     newContainer.frame = CGRectOffset(leftContainerView.frame, -screenWidth/2, 0)
-                    newContainer.layer.masksToBounds = false
                     self.addSubview(newContainer)
                     for subView in leftContainerView.subviews {
                         if let imgView = subView as? UIImageView {
@@ -146,7 +146,7 @@ class VRView: UIView {
                         }
                     }
                     for subView in newContainer.subviews {
-                        subView.frame = CGRectOffset(subView.frame, -screenWidth/2, 0)
+                        subView.frame = CGRectOffset(subView.frame, -screenWidth*(5/8), 0)
                     }
                     hasContinuousViewForView[leftContainerView] = true
                     hasContinuousViewForView[newContainer] = true
