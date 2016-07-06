@@ -20,7 +20,7 @@ class VRView: UIView {
     
     private var isContinuous = false
     private var hasSetMargins = false
-    private var hasContinuousViewForView:[Bool:UIView] = [:]
+    private var hasContinuousViewForView:[UIView:Bool] = [:]
     
     private var leftMargin:CGFloat = 0.0
     private var rightMargin:CGFloat = 0.0
@@ -29,15 +29,26 @@ class VRView: UIView {
     
     private var leftView:UIView
     private var rightView:UIView
+
+    private var leftContainerView:UIView
+    private var rightContainerView:UIView
     
     private var leftSubViews:[UIView]
     private var rightSubViews:[UIView]
     
+    // FIX DIRECTION BASED ON ORIENTATION
+    
     init() {
         leftView = UIView(frame:CGRect(x:0, y:0, width:screenWidth/2, height:screenHeight))
-        leftView.layer.masksToBounds = true
         rightView = UIView(frame:CGRect(x:screenWidth/2, y:0, width:screenWidth/2, height:screenHeight))
-        rightView.layer.masksToBounds = true
+        leftContainerView = UIView(frame:CGRect(x:0, y:0, width:screenWidth/2, height:screenHeight))
+        leftContainerView.layer.masksToBounds = true
+        leftView.addSubview(leftContainerView)
+        rightContainerView = UIView(frame:CGRect(x:0, y:0, width:screenWidth/2, height:screenHeight))
+        rightContainerView.layer.masksToBounds = true
+        rightView.addSubview(rightContainerView)
+        hasContinuousViewForView[leftContainerView] = false
+        hasContinuousViewForView[rightContainerView] = false
         leftSubViews = []
         rightSubViews = []
         super.init(frame:CGRect(x:0, y:0, width:screenWidth, height:screenHeight))
@@ -48,17 +59,25 @@ class VRView: UIView {
             let interval = 1.0/120.0
             motionManager.deviceMotionUpdateInterval = interval
             motionManager.startDeviceMotionUpdates()
-            
             motionManager.gyroUpdateInterval = interval
             motionManager.startGyroUpdatesToQueue(NSOperationQueue.currentQueue()!, withHandler: { (gyroData:CMGyroData?, error:NSError?) in
                 let x:CGFloat = CGFloat((gyroData?.rotationRate.x)!)
                 let y:CGFloat = CGFloat((gyroData?.rotationRate.y)!)
-                for vrSubView in self.getAllSubViews() {
-                    vrSubView.frame = CGRectOffset(vrSubView.frame, x, -y)
+                switch UIDevice.currentDevice().orientation {
+                case .LandscapeLeft:
+                    for vrSubView in self.getAllSubViews() {
+                        vrSubView.frame = CGRectOffset(vrSubView.frame, x, -y)
+                    }
+                    self.netX+=x
+                    self.netY+=y
+                default:
+                    for vrSubView in self.getAllSubViews() {
+                        vrSubView.frame = CGRectOffset(vrSubView.frame, -x, y)
+                    }
+                    self.netX-=x
+                    self.netY-=y
                 }
-                self.netX+=x
-                self.netY+=y
-                print("Net X: \(self.netX), Net Y: \(self.netY)")
+                //print("Net X: \(self.netX), Net Y: \(self.netY)")
                 self.checkContinuousViews()
             })
         }
@@ -67,6 +86,8 @@ class VRView: UIView {
     required init?(coder aDecoder:NSCoder) {
         leftView = UIView()
         rightView = UIView()
+        leftContainerView = UIView()
+        rightContainerView = UIView()
         leftSubViews = []
         rightSubViews = []
         super.init(coder:aDecoder)
@@ -106,11 +127,30 @@ class VRView: UIView {
     private func checkContinuousViews() {
         if isContinuous && hasSetMargins {
             let margin:CGFloat = 20.0
-            if netX+margin < leftMargin {
+            /*if netX+margin < leftMargin {
                 
-            }
-            if netX-margin > rightMargin {
-                
+            }*/
+            if netX+(screenWidth/2)-margin > rightMargin {
+                let hasView = hasContinuousViewForView[leftContainerView]
+                if !hasView! {
+                    let newContainer:UIView = leftContainerView.copyView() as! UIView
+                    newContainer.frame = CGRectOffset(leftContainerView.frame, -screenWidth/2, 0)
+                    newContainer.layer.masksToBounds = false
+                    self.addSubview(newContainer)
+                    for subView in leftContainerView.subviews {
+                        if let imgView = subView as? UIImageView {
+                            let tempImgView = UIImageView(frame:imgView.frame)
+                            tempImgView.image = imgView.image
+                            newContainer.addSubview(tempImgView)
+                            leftSubViews.append(tempImgView)
+                        }
+                    }
+                    for subView in newContainer.subviews {
+                        subView.frame = CGRectOffset(subView.frame, -screenWidth/2, 0)
+                    }
+                    hasContinuousViewForView[leftContainerView] = true
+                    hasContinuousViewForView[newContainer] = true
+                }
             }
             /*if netY+margin < topMargin {
                 
@@ -128,8 +168,8 @@ class VRView: UIView {
     func addVRSubView(view:UIView) {
         let leftSubView = view
         let rightSubView = view.copyView() as! UIView
-        leftView.addSubview(leftSubView)
-        rightView.addSubview(rightSubView)
+        leftContainerView.addSubview(leftSubView)
+        rightContainerView.addSubview(rightSubView)
         leftSubViews.append(leftSubView)
         rightSubViews.append(rightSubView)
         alterContinuousViews()
@@ -140,8 +180,8 @@ class VRView: UIView {
         let tempImgView = UIImageView(frame:imgView.frame)
         tempImgView.image = imgView.image
         let rightSubView = tempImgView
-        leftView.addSubview(leftSubView)
-        rightView.addSubview(rightSubView)
+        leftContainerView.addSubview(leftSubView)
+        rightContainerView.addSubview(rightSubView)
         leftSubViews.append(leftSubView)
         rightSubViews.append(rightSubView)
         alterContinuousViews()
