@@ -36,8 +36,6 @@ class VRView: UIView {
     private var leftSubViews:[UIView]
     private var rightSubViews:[UIView]
     
-    // FIX DIRECTION BASED ON ORIENTATION
-    
     init() {
         leftView = UIView(frame:CGRect(x:0, y:0, width:screenWidth/2, height:screenHeight))
         rightView = UIView(frame:CGRect(x:screenWidth/2, y:0, width:screenWidth/2, height:screenHeight))
@@ -125,31 +123,18 @@ class VRView: UIView {
     }
     
     private func checkContinuousViews() {
+        let margin:CGFloat = 20.0
         if isContinuous && hasSetMargins {
-            let margin:CGFloat = 20.0
             if netX+margin < leftMargin {
-                
+                let hasView = hasContinuousViewForView[leftContainerView]
+                if !hasView! {
+                    addContinuousView(1, margin:margin)
+                }
             }
             if netX+(screenWidth/2)+margin > rightMargin {
                 let hasView = hasContinuousViewForView[leftContainerView]
                 if !hasView! {
-                    leftContainerView.layer.masksToBounds = false
-                    let newContainer:UIView = leftContainerView.copyView() as! UIView
-                    newContainer.frame = CGRectOffset(leftContainerView.frame, -screenWidth/2, 0)
-                    self.addSubview(newContainer)
-                    for subView in leftContainerView.subviews {
-                        if let imgView = subView as? UIImageView {
-                            let tempImgView = UIImageView(frame:imgView.frame)
-                            tempImgView.image = imgView.image
-                            newContainer.addSubview(tempImgView)
-                            leftSubViews.append(tempImgView)
-                        }
-                    }
-                    for subView in newContainer.subviews {
-                        subView.frame = CGRectOffset(subView.frame, -screenWidth*(5/8), 0)
-                    }
-                    hasContinuousViewForView[leftContainerView] = true
-                    hasContinuousViewForView[newContainer] = true
+                    addContinuousView(0, margin:margin)
                 }
             }
             /*if netY+margin < topMargin {
@@ -161,8 +146,69 @@ class VRView: UIView {
         }
     }
     
-    private func addContinuousView() {
+    private func addContinuousView(fromSide:Int, margin:CGFloat) { // 0 is left, 1 is right
+        var container1:UIView = UIView()
+        var container2:UIView = UIView()
+        if fromSide == 0 {
+            leftView.layer.zPosition = 2
+            container1 = leftContainerView
+            container2 = rightContainerView
+        } else {
+            rightView.layer.zPosition = 2
+            container1 = rightContainerView
+            container2 = leftContainerView
+        }
+        let newContainer1:UIView = container1.copyView() as! UIView
+        newContainer1.frame = CGRectOffset(container1.frame, -screenWidth/2, 0)
+        newContainer1.layer.masksToBounds = false
+        if fromSide == 0 {
+            leftView.addSubview(newContainer1)
+        } else {
+            rightView.addSubview(newContainer1)
+        }
+        for subView in container1.subviews {
+            if let imgView = subView as? UIImageView {
+                let tempImgView = UIImageView(frame:imgView.frame)
+                tempImgView.image = imgView.image
+                newContainer1.addSubview(tempImgView)
+                if fromSide == 0 {
+                    leftSubViews.append(tempImgView)
+                } else {
+                    rightSubViews.append(tempImgView)
+                }
+            }
+        }
+        for subView in newContainer1.subviews {
+            subView.frame = CGRectOffset(subView.frame, -screenWidth*(5/8)-(margin*2.25), 0)
+        }
+        hasContinuousViewForView[container1] = true
+        hasContinuousViewForView[newContainer1] = true
         
+        let newContainer2:UIView = container2.copyView() as! UIView
+        newContainer2.frame = CGRectOffset(container2.frame, -screenWidth/2, 0)
+        newContainer2.layer.masksToBounds = false
+        if fromSide == 0 {
+            rightView.addSubview(newContainer2)
+        } else {
+            leftView.addSubview(newContainer2)
+        }
+        for subView in container2.subviews {
+            if let imgView = subView as? UIImageView {
+                let tempImgView = UIImageView(frame:imgView.frame)
+                tempImgView.image = imgView.image
+                newContainer2.addSubview(tempImgView)
+                if fromSide == 0 {
+                    rightSubViews.append(tempImgView)
+                } else {
+                    leftSubViews.append(tempImgView)
+                }
+            }
+        }
+        for subView in newContainer2.subviews {
+            subView.frame = CGRectOffset(subView.frame, -screenWidth*(5/8)-(margin*2.25), 0)
+        }
+        hasContinuousViewForView[container2] = true
+        hasContinuousViewForView[newContainer2] = true
     }
     
     func addVRSubView(view:UIView) {
