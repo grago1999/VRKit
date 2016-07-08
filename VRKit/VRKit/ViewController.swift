@@ -56,7 +56,8 @@ class ViewController: UIViewController {
         // Add UIImageView objects to the VRView the same way as you normally would
         
         let img = UIImage(named:"img360.jpg")
-        let imgView = UIImageView(frame:CGRect(x:0, y:0, width:img!.size.width/4, height:img!.size.height/4))
+        let rate:CGFloat = img!.size.width/img!.size.height
+        let imgView = UIImageView(frame:CGRect(x:0, y:0, width:rate*screenHeight, height:screenHeight))
         imgView.center = CGPoint(x:screenWidth/4, y:screenHeight/2)
         imgView.image = img
         
