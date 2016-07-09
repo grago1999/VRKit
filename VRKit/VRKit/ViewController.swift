@@ -57,11 +57,12 @@ class ViewController: UIViewController {
         
         let img = UIImage(named:"img360.jpg")
         let rate:CGFloat = img!.size.width/img!.size.height
-        let imgView = UIImageView(frame:CGRect(x:0, y:0, width:rate*screenHeight, height:screenHeight))
+        let height:CGFloat = screenHeight*1.75
+        let imgView = UIImageView(frame:CGRect(x:0, y:0, width:rate*height, height:height))
         imgView.center = CGPoint(x:screenWidth/4, y:screenHeight/2)
         imgView.image = img
         
-        // The only difference is use addVRSubImgView(UIView) in place of addSubview(UIImageView)
+        // The only difference is use addVRSubImgView(UIView) in place of addSubview(UIView)
         
         vrView.addVRSubImgView(imgView)
     }

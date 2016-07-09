@@ -20,6 +20,7 @@ class VRView: UIView {
     
     private var isContinuous = false
     private var hasSetMargins = false
+    private var isCalibrated = false
     
     private var leftMargin:CGFloat = 0.0
     private var rightMargin:CGFloat = 0.0
@@ -28,7 +29,7 @@ class VRView: UIView {
     
     private var leftView:UIView
     private var rightView:UIView
-
+    
     private var leftContainerView:UIView
     private var rightContainerView:UIView
     
@@ -54,9 +55,18 @@ class VRView: UIView {
         let motionRate:CGFloat = 4.0
         if motionManager.gyroAvailable && !motionManager.gyroActive {
             let interval = 1.0/120.0
-            motionManager.deviceMotionUpdateInterval = interval
             motionManager.startDeviceMotionUpdates()
+            motionManager.deviceMotionUpdateInterval = interval
             motionManager.gyroUpdateInterval = interval
+            motionManager.startDeviceMotionUpdatesToQueue(NSOperationQueue.currentQueue()!, withHandler: { deviceManager, error in
+                // Based on http://stackoverflow.com/questions/9478630/get-pitch-yaw-roll-from-a-cmrotationmatrix/18764368#18764368
+                if !self.isCalibrated {
+                    let quaternion = deviceManager?.attitude.quaternion
+                    let roll = self.radiansToDegrees(atan2(2*(quaternion!.y*quaternion!.w - quaternion!.x*quaternion!.z), 1 - 2*quaternion!.y*quaternion!.y - 2*quaternion!.z*quaternion!.z))
+                    let pitch = self.radiansToDegrees(atan2(2*(quaternion!.x*quaternion!.w + quaternion!.y*quaternion!.z), 1 - 2*quaternion!.x*quaternion!.x - 2*quaternion!.z*quaternion!.z))
+                    let yaw = self.radiansToDegrees(asin(2*quaternion!.x*quaternion!.y + 2*quaternion!.w*quaternion!.z))
+                }
+            })
             motionManager.startGyroUpdatesToQueue(NSOperationQueue.currentQueue()!, withHandler: { (gyroData:CMGyroData?, error:NSError?) in
                 let x:CGFloat = CGFloat((gyroData?.rotationRate.x)!)*motionRate
                 let y:CGFloat = CGFloat((gyroData?.rotationRate.y)!)*motionRate
@@ -111,6 +121,7 @@ class VRView: UIView {
                     bottomMargin = subView.frame.origin.y+subView.frame.size.height
                 }
             }
+            print(leftMargin)
             hasSetMargins = true
         } else {
             leftMargin = 0.0
@@ -131,17 +142,16 @@ class VRView: UIView {
                 addContinuousView(0, margin:margin)
             }
             /*if netY+margin < topMargin {
-                
-            }
-            if netY-margin > bottomMargin {
-                
-            }*/
+             
+             }
+             if netY-margin > bottomMargin {
+             
+             }*/
         }
     }
     
     private func addContinuousView(fromSide:Int, margin:CGFloat) { // 0 is left, 1 is right
         hasSetMargins = false
-        print("add")
         var sideView1:UIView = UIView()
         var sideView2:UIView = UIView()
         var container1:UIView = UIView()
@@ -219,6 +229,10 @@ class VRView: UIView {
             allSubViews.append(subView)
         }
         return allSubViews
+    }
+    
+    private func radiansToDegrees(val:Double) -> Double {
+        return val*(180/M_PI)
     }
     
 }
